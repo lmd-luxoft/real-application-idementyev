@@ -143,11 +143,15 @@ def create_file(content=None, security_level=None):
     _file_name = utils.generate_string()
     _file = f'{_file_name}.{extension}'
 
-    with open(_file, 'w') as _of:
-        _of.write(content if content else '')
-
-    _file = get_file_data(_file_name)
-    return _file
+    # check for existing files with recursion
+    while os.path.exists(_file):
+        _file_data = create_file(content, security_level)
+        return _file_data
+    else:
+        with open(_file, 'w') as _of:
+            _of.write(content if content else '')
+        _file_data = get_file_data(_file_name)
+        return _file_data
 
 
 def delete_file(filename):
