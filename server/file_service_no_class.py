@@ -144,15 +144,14 @@ def create_file(content=None, security_level=None):
     Args:
         content (str): String with file content,
         security_level (str): String with security level.
-
     Returns:
-        Dict, which contains name of created file. Keys:
+        _file (dict): Dictionary describing file.
+        Keys:
             name (str): name of file with .txt extension.
             content (str): file content.
             create_date (str): date of file creation.
             size (int): size of file in bytes,
             user_id (int): user Id.
-
     Raises:
         AssertionError: if user_id is not set,
         ValueError: if security level is invalid.
@@ -165,7 +164,8 @@ def create_file(content=None, security_level=None):
     with open(_file, 'w') as _of:
         _of.write(content if content else '')
 
-    return get_file_data(_file_name)
+    _file = get_file_data(_file_name)
+    return _file
 
 
 def delete_file(filename):

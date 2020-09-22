@@ -68,29 +68,33 @@ def get_file_data(path):
     pass
 
 
-def create_file(path):
+def create_file(_content=None):
     """Create new .txt file.
 
-    Method generates name of file from random string with digits and latin letters.
+    Method generates name of file from random string with digits
+    and latin letters.
 
     Args:
-        path (str): Working directory path.
-
+        _content (str): String with file content,
     Returns:
-        Dict, which contains name of created file. Keys:
+        _file (dict): Dictionary describing file.
+        Keys:
             name (str): name of file with .txt extension.
             content (str): file content.
             create_date (str): date of file creation.
             size (int): size of file in bytes,
             user_id (int): user Id.
-
     Raises:
         AssertionError: if user_id is not set,
         ValueError: if security level is invalid.
 
     """
 
-    pass
+    if not _content:
+        print("Enter file contents:")
+        _content = input(f'text:{cli_prompt}')
+    _file = FileServiceNoClass.create_file(_content)
+    return _file
 
 
 def delete_file(_path=None):
@@ -103,6 +107,7 @@ def delete_file(_path=None):
     Raises:
         AssertionError: if file does not exist.
     """
+
     if not _path:
         print("Enter file to remove (no extensions):")
         _path = input(f'file:{cli_prompt}')
@@ -181,10 +186,7 @@ def cli():
             print(file_obj['content'])
             continue
         elif command == 'create':
-            print("Enter file contents:")
-            input_contents = input(f'text:{cli_prompt}')
-            file_obj = FileServiceNoClass.create_file(input_contents)
-            print(f"Created file: {file_obj['name']}")
+            print(f"Created file: {create_file()['name']}")
             continue
         elif command == 'delete':
             print(f"Deleted file: {delete_file()}")
