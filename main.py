@@ -128,7 +128,7 @@ def cli():
     print("cd     - change dir")
     print("get    - get files in dir")
     print("create - create file")
-    print("remove - remove file")
+    print("delete - delete file (no extension)")
     print("Enter 'exit' to, well, exit.")
 
     while True:
@@ -136,9 +136,20 @@ def cli():
 
         if command == 'cd':
             print("Enter directory:")
-            cd = input(f'cd:{prompt}')
-            FileServiceNoClass.change_dir(cd)
-
+            input_cd = input(f'cd:{prompt}')
+            FileServiceNoClass.change_dir(input_cd)
+        elif command == 'get':
+            files = FileServiceNoClass.get_files()
+            for f in files:
+                print(f['name'])
+        elif command == 'create':
+            print("Enter file contents:")
+            input_contents = input(f'text:{prompt}')
+            print(FileServiceNoClass.create_file(input_contents))
+        elif command == 'delete':
+            print("Enter file to remove (no extensions):")
+            input_remove = input(f'file:{prompt}')
+            print(FileServiceNoClass.delete_file(input_remove))
         elif command == 'exit':
             return
         else:
