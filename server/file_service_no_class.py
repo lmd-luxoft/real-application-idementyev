@@ -44,18 +44,12 @@ def get_file_meta(_file):
         ValueError: if security level is invalid.
     """
 
-    _file_data = {
-        'name': None,
-        'create_date': None,
-        'edit_date': None,
-        'size': None,
-    }
+    _file_data = {}
 
     try:
         _file_stat = os.stat(_file)
         _file_data['name'] = os.path.basename(_file)
         _file_data['size'] = _file_stat.st_size
-        # TODO: make cross-platform
         _file_data['create_date'] = utils.convert_date(_file_stat.st_ctime)
         _file_data['edit_date'] = utils.convert_date(_file_stat.st_mtime)
     except FileNotFoundError as _e:
@@ -139,10 +133,10 @@ def create_file(content=None, security_level=None):
             name (str): name of file with .txt extension.
             content (str): file content.
             create_date (str): date of file creation.
-            size (int): size of file in bytes,
-            user_id (int): user Id.
+            size (int): size of file in bytes.
+            user_id (int): user id.  TODO: add?
     Raises:
-        AssertionError: if user_id is not set,
+        AssertionError: if user_id is not set.
         ValueError: if security level is invalid.
     """
 

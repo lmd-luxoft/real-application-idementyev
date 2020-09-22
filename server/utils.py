@@ -1,6 +1,7 @@
 # Copyright 2020 by Kirill Kanin, Ilya Dementyev
 # All rights reserved.
 
+
 import random
 import string
 from datetime import datetime
@@ -24,7 +25,6 @@ def generate_string() -> str:
 
     Returns:
         str: random string.
-
     """
 
     _letters = string.ascii_letters
@@ -41,10 +41,8 @@ def convert_date(timestamp: float) -> str:
 
     Args:
         timestamp (float): date timestamp.
-
     Returns:
         str: converted date.
-
     """
 
     _out_format = '%Y-%m-%d %H:%M:%S'

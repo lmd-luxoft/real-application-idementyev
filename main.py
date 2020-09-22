@@ -3,7 +3,7 @@ __author__ = 'idementyev@luxoft.com'
 __date__ = '2020-09-22'
 
 
-import argparse as ap
+import argparse
 import os
 # import sys
 # import logging
@@ -15,21 +15,21 @@ import os
 import server.file_service_no_class as file_service
 
 
-def commandline_parser() -> ap.ArgumentParser:
+def commandline_parser() -> argparse.ArgumentParser:
     """Command line parser.
 
     Parse port and working directory parameters from command line.
-
     """
+
     # noinspection PyTypeChecker
     # (broken in PyCharm 2020.x)
-    p = ap.ArgumentParser(
-        description='Some app that does something, which I cannot yet name,\n'
-                    'but eventually it will work with files, so let\'s call '
+    p = argparse.ArgumentParser(
+        description='Some app that does something, which I cannot yet name, '
+                    'but eventually it \nwill work with files, so let\'s call '
                     'it next-next-cloud.',
         epilog="v{} ({}) by {}".format(__version__, __date__,
                                        __author__),
-        formatter_class=ap.RawDescriptionHelpFormatter)
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('-p', '--port', type=int, metavar='PORT', default=8080,
                    help='port for application')
     p.add_argument('-d', '--directory', metavar='DIR', type=str, default=None,
@@ -154,19 +154,34 @@ def main():
     cli()
 
 
+def cli_help():
+    """
+    Display command list for CLI with pretty formatting.
+    """
+
+    cli_commands_help = {
+        'cd': 'change current directory',
+        'pwd': 'print current directory',
+        'list': 'get files in current directory',
+        'get': 'get file contents',
+        'create': 'create file',
+        'delete': 'delete file (no extension)',
+        'help': 'print this message',
+        'exit': 'exit CLI'
+    }
+
+    print("Command list:")
+    for k, v in cli_commands_help.items():
+        print(f'{k:8} - {v}')
+
+
 def cli():
     """
     Make simple CLI infinite cycle with... hope that they won't hack us =(
     Don't do this. Never.
     """
 
-    print("cd     - change dir")
-    print("pwd    - print current dir")
-    print("list   - get files in dir")
-    print("get    - get files contents")
-    print("create - create file")
-    print("delete - delete file (no extension)")
-    print("Enter 'exit' to, well, exit.")
+    cli_help()
 
     while True:
         command = input(cli_prompt)
@@ -189,6 +204,8 @@ def cli():
         elif command == 'delete':
             print(f"Deleted file: {delete_file()}")
             continue
+        elif command == 'help':
+            cli_help()
         elif command == 'exit':
             return
         else:
