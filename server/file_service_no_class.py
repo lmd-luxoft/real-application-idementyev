@@ -1,4 +1,4 @@
-# Copyright 2019 by Kirill Kanin.
+# Copyright 2020 by Kirill Kanin, Ilya Dementyev
 # All rights reserved.
 
 
@@ -20,7 +20,11 @@ def change_dir(path):
 
     """
 
-    pass
+    if not os.path.exists(path):
+        raise AssertionError(f'Directory {path} does not exist')
+    else:
+        os.chdir(path)
+        print(f'Dir changed to {path}')
 
 
 def get_file_data(filename):
@@ -43,10 +47,42 @@ def get_file_data(filename):
 
     """
 
-    pass
+    _file = f'{filename}.{extension}'
+    _file_content = None
+
+    if not os.path.exists(_file):
+        raise AssertionError(f'File {_file} does not exist')
+
+    try:
+        with open(_file, 'r') as _fr:
+            _file_content = _fr.read()
+    except OSError as _e:
+        #if _e.errno ==
+        # TODO: get proper 'EPERM' here
+        raise ValueError('Security level is invalid')
+
+    # file exists here
+    _file_stat = os.stat(_file)
+
+    _file_data_dict = {
+        'name': None,
+        'content': None,
+        'create_date': None,
+        'edit_date': None,
+        'size': None,
+    }
+
+    _file_data_dict['name'] = os.path.basename(_file)
+    _file_data_dict['content'] = _file_content
+    # TODO: this is heavy, make properly cross-platform
+    _file_data_dict['create_date'] = _file_stat.st_ctime
+    _file_data_dict['edit_date'] = _file_stat.st_mtime
+    _file_data_dict['size'] = _file_stat.st_size
+
+    return _file_data_dict
 
 
-def get_files():
+def get_files(_directory=None):
     """Get info about all files in working directory.
 
     Returns:
@@ -58,13 +94,33 @@ def get_files():
 
     """
 
-    pass
+    _directory = _directory if _directory else os.getcwd()
+    _files_list = []
+
+    for _r, _d, _files in os.walk(_directory):
+        for _f in _files:
+            _f_dict = {}
+            _f_path, _f_ext = os.path.splitext(_f)
+            if _f_ext == f'.{extension}':
+                _input_file = os.path.join(_directory, _f_path)
+
+                # make dictionary
+                _full_dict = get_file_data(_input_file)
+                _f_dict = {_i: _full_dict[_i] for _i in _full_dict if _i != 'content'}
+
+                _files_list.append(_f_dict)
+
+        # only 1st level
+        break
+
+    return _files_list
 
 
 def create_file(content=None, security_level=None):
     """Create new .txt file.
 
-    Method generates name of file from random string with digits and latin letters.
+    Method generates name of file from random string with digits
+    and latin letters.
 
     Args:
         content (str): String with file content,
@@ -102,3 +158,12 @@ def delete_file(filename):
     """
 
     pass
+
+# test chdir
+#change_dir('123')
+
+# test get_file_data
+print(get_file_data('../requirements'))
+
+# test get_files
+print(get_files('..'))
