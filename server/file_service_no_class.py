@@ -59,7 +59,7 @@ def get_file_data(filename):
     except OSError as _e:
         #if _e.errno ==
         # TODO: get proper 'EPERM' here
-        raise ValueError('Security level is invalid')
+        raise _e
 
     # file exists here
     _file_stat = os.stat(_file)
@@ -166,16 +166,31 @@ def delete_file(filename):
 
     """
 
-    pass
+    _file = f'{filename}.{extension}'
+    if not os.path.exists(_file):
+        raise AssertionError(f'File {_file} does not exist')
+
+    try:
+        os.remove(_file)
+    except OSError as _e:
+        # TODO: again, proper catch should be implemented here
+        raise _e
+
+    return _file
+
 
 # test chdir
-#change_dir('123')
+change_dir('..')
 
 # test get_file_data
-print(get_file_data('../requirements'))
+print(get_file_data('requirements'))
 
 # test get_files
-print(get_files('..'))
+print(get_files('.'))
 
 # test file creation
-print(create_file())
+created = create_file('Lorem Ipsum')
+created_file, _ext = os.path.splitext(created['name'])
+
+# test file deletion
+print(delete_file(created_file))
