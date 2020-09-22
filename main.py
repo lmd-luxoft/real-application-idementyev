@@ -21,8 +21,28 @@ def commandline_parser() -> ap.ArgumentParser:
     Parse port and working directory parameters from command line.
 
     """
-
-    pass
+    p = ap.ArgumentParser(
+        description='Some app that does something, which I cannot yet name,\n'
+                    'but eventually it will work with files, so let\'s call '
+                    'it the nextnextcloud.',
+        epilog="v{} ({}) by {}".format(__version__, __date__,
+                                       __author__),
+        formatter_class=ap.RawDescriptionHelpFormatter)
+    p.add_argument('-p', '--port', type=int, metavar='PORT', default=8080,
+                   help='port for application')
+    # p.add_argument('-f', '--folder', type=str, default='.',
+    #                help='working directory')
+    p.add_argument('-d', '--directory', metavar='DIR', type=str, default=None,
+                   help='working directory')
+    p.add_argument('-i', '--init', action='store_true', default=False,
+                   help='initialize database')
+    # either verbose or quiet, can be default
+    g1 = p.add_mutually_exclusive_group(required=False)
+    g1.add_argument('-v', '--verbose', action='store_true', default=False,
+                    help='verbose output')
+    g1.add_argument('-q', '--quiet', action='store_true', default=False,
+                    help='display warnings and errors only')
+    return p
 
 
 def get_file_data(path):
@@ -115,28 +135,8 @@ def main():
     -h --help - help.
 
     """
-    p = ap.ArgumentParser(
-        description='Some app that does something, which I cannot yet name,\n'
-                    'but eventually it will work with files, so let\'s call '
-                    'it the nextnextcloud.',
-        epilog="v{} ({}) by {}".format(__version__, __date__,
-                                       __author__),
-        formatter_class=ap.RawDescriptionHelpFormatter)
-    p.add_argument('-p', '--port', type=int, metavar='PORT', default=8080,
-                   help='port for application')
-    # p.add_argument('-f', '--folder', type=str, default='.',
-    #                help='working directory')
-    p.add_argument('-d', '--directory', metavar='DIR', type=str, default=None,
-                   help='working directory')
-    p.add_argument('-i', '--init', action='store_true', default=False,
-                   help='initialize database')
-    # either verbose or quiet, can be default
-    g1 = p.add_mutually_exclusive_group(required=False)
-    g1.add_argument('-v', '--verbose', action='store_true', default=False,
-                    help='verbose output')
-    g1.add_argument('-q', '--quiet', action='store_true', default=False,
-                    help='display warnings and errors only')
-    args, _ = p.parse_known_args()
+
+    args, _ = commandline_parser().parse_known_args()
 
     if args.directory:
         FileServiceNoClass.change_dir(args.directory)
