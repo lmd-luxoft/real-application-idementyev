@@ -32,71 +32,63 @@ def get_file_meta(_file):
 
     Args:
         _file (str): Filename with file extension.
-
     Returns:
-        Dict, which contains full info about file. Keys:
+        _file_data (dict): Meta info about file.
+        Keys:
             name (str): name of file with .txt extension.
             create_date (str): date of file creation.
             edit_date (str): date of last file modification.
             size (int): size of file in bytes.
-
     Raises:
         AssertionError: if file does not exist, filename format is invalid,
         ValueError: if security level is invalid.
-
     """
 
-    _file_data_dict = {
+    _file_data = {
         'name': None,
         'create_date': None,
         'edit_date': None,
         'size': None,
     }
 
-    _file_stat = os.stat(_file)
-    _file_data_dict['name'] = os.path.basename(_file)
-    _file_data_dict['size'] = _file_stat.st_size
-    # TODO: make cross-platform
-    _file_data_dict['create_date'] = utils.convert_date(_file_stat.st_ctime)
-    _file_data_dict['edit_date'] = utils.convert_date(_file_stat.st_mtime)
+    try:
+        _file_stat = os.stat(_file)
+        _file_data['name'] = os.path.basename(_file)
+        _file_data['size'] = _file_stat.st_size
+        # TODO: make cross-platform
+        _file_data['create_date'] = utils.convert_date(_file_stat.st_ctime)
+        _file_data['edit_date'] = utils.convert_date(_file_stat.st_mtime)
+    except FileNotFoundError as _e:
+        raise AssertionError(f'File {_file} does not exist')
 
-    return _file_data_dict
+    return _file_data
 
 
 def get_file_data(filename):
-    """Get meta info about file and add content.
+    """Get full info about file with content.
 
     Args:
         filename (str): Filename without .txt file extension.
-
     Returns:
-        Dict, which contains full info about file. Keys:
+        _file_data_dict (dict): Dictionary with full info about file.
+        Keys:
             name (str): name of file with .txt extension.
             content (str): file content.
             create_date (str): date of file creation.
             edit_date (str): date of last file modification.
             size (int): size of file in bytes.
-
     Raises:
         AssertionError: if file does not exist, filename format is invalid,
         ValueError: if security level is invalid.
-
     """
 
     _file = f'{filename}.{extension}'
     _file_content = None
-
-    if not os.path.exists(_file):
-        raise AssertionError(f'File {_file} does not exist')
-
-    try:
-        with open(_file, 'r') as _fr:
-            _file_content = _fr.read()
-    except OSError as _e:
-        # TODO: get proper 'EPERM' here
-        raise _e
-
     _file_data_dict = get_file_meta(_file)
+
+    # no checks here because get_file_meta() already has them.
+    with open(_file, 'r') as _fr:
+        _file_content = _fr.read()
     _file_data_dict['content'] = _file_content
 
     return _file_data_dict
@@ -105,13 +97,15 @@ def get_file_data(filename):
 def get_files(_directory=None):
     """Get info about all files in working directory.
 
+    Args:
+        _directory (str): Optional directory to list files from.
     Returns:
-        List of dicts, which contains info about each file. Keys:
+        _files_list (list): List of dicts with info about each file.
+        Keys:
             name (str): name of file with .txt extension.
             create_date (str): date of file creation.
             edit_date (str): date of last file modification.
-            size (str): size of file in bytes.
-
+            size (int): size of file in bytes.
     """
 
     _directory = _directory if _directory else os.getcwd()
@@ -119,16 +113,11 @@ def get_files(_directory=None):
 
     for _r, _d, _files in os.walk(_directory):
         for _f in _files:
-            _f_dict = {}
-            _f_path, _f_ext = os.path.splitext(_f)
+            _, _f_ext = os.path.splitext(_f)
             if _f_ext == f'.{extension}':
                 _meta_file = os.path.join(_directory, _f)
-
-                # make dictionary
-                _meta_dict = get_file_meta(_f)
-
+                _meta_dict = get_file_meta(_meta_file)
                 _files_list.append(_meta_dict)
-
         # only 1st level
         break
 
@@ -155,7 +144,6 @@ def create_file(content=None, security_level=None):
     Raises:
         AssertionError: if user_id is not set,
         ValueError: if security level is invalid.
-
     """
 
     _file_name = utils.generate_string()

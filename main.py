@@ -5,14 +5,14 @@ __date__ = '2020-09-22'
 
 import argparse as ap
 import os
-import sys
-import logging
-import json
-from aiohttp import web
-from server.handler import Handler
-#from server.database import DataBase
-from server.file_service import FileService, FileServiceSigned
-import server.file_service_no_class as FileServiceNoClass
+# import sys
+# import logging
+# import json
+# from aiohttp import web
+# from server.handler import Handler
+# from server.database import DataBase
+# from server.file_service import FileService, FileServiceSigned
+import server.file_service_no_class as file_service
 
 
 def commandline_parser() -> ap.ArgumentParser:
@@ -21,17 +21,17 @@ def commandline_parser() -> ap.ArgumentParser:
     Parse port and working directory parameters from command line.
 
     """
+    # noinspection PyTypeChecker
+    # (broken in PyCharm 2020.x)
     p = ap.ArgumentParser(
         description='Some app that does something, which I cannot yet name,\n'
                     'but eventually it will work with files, so let\'s call '
-                    'it the nextnextcloud.',
+                    'it next-next-cloud.',
         epilog="v{} ({}) by {}".format(__version__, __date__,
                                        __author__),
         formatter_class=ap.RawDescriptionHelpFormatter)
     p.add_argument('-p', '--port', type=int, metavar='PORT', default=8080,
                    help='port for application')
-    # p.add_argument('-f', '--folder', type=str, default='.',
-    #                help='working directory')
     p.add_argument('-d', '--directory', metavar='DIR', type=str, default=None,
                    help='working directory')
     p.add_argument('-i', '--init', action='store_true', default=False,
@@ -45,12 +45,11 @@ def commandline_parser() -> ap.ArgumentParser:
     return p
 
 
-def get_file_data(path):
-    """Get full info about file.
+def get_file_data(_file=None):
+    """Get full info about file with content.
 
     Args:
-        path (str): Working directory path.
-
+        _file (str): Filename without .txt file extension.
     Returns:
         Dict, which contains full info about file. Keys:
             name (str): name of file with .txt extension.
@@ -58,14 +57,17 @@ def get_file_data(path):
             create_date (str): date of file creation.
             edit_date (str): date of last file modification.
             size (int): size of file in bytes.
-
     Raises:
         AssertionError: if file does not exist, filename format is invalid,
         ValueError: if security level is invalid.
-
     """
 
-    pass
+    if not _file:
+        print("Enter file name:")
+        _file = input(f'file:{cli_prompt}')
+    _file_obj = file_service.get_file_data(_file)
+
+    return _file_obj
 
 
 def create_file(_content=None):
@@ -87,13 +89,12 @@ def create_file(_content=None):
     Raises:
         AssertionError: if user_id is not set,
         ValueError: if security level is invalid.
-
     """
 
     if not _content:
         print("Enter file contents:")
         _content = input(f'text:{cli_prompt}')
-    _file = FileServiceNoClass.create_file(_content)
+    _file = file_service.create_file(_content)
     return _file
 
 
@@ -111,7 +112,7 @@ def delete_file(_path=None):
     if not _path:
         print("Enter file to remove (no extensions):")
         _path = input(f'file:{cli_prompt}')
-    _file = FileServiceNoClass.delete_file(_path)
+    _file = file_service.delete_file(_path)
     return _file
 
 
@@ -127,7 +128,7 @@ def change_dir(_path=None):
     if not _path:
         print("Enter directory:")
         _path = input(f'path:{cli_prompt}')
-    _new_dir = FileServiceNoClass.change_dir(_path)
+    _new_dir = file_service.change_dir(_path)
     return _new_dir
 
 
@@ -136,11 +137,11 @@ def main():
 
     Get and parse command line parameters and configure web app.
     Command line options:
-    -p --port - port (default: 8080).
-    -f --folder - working directory (absolute or relative path, default: current app folder FileServer).
-    -i --init - initialize database.
-    -h --help - help.
-
+    -p --port      - port (default: 8080).
+    -d --directory - working directory (absolute or relative path,
+                     default: current app folder FileServer).
+    -i --init      - initialize database.
+    -h --help      - help.
     """
 
     args, _ = commandline_parser().parse_known_args()
@@ -176,14 +177,11 @@ def cli():
         if command == 'pwd':
             print(os.getcwd())
         elif command == 'list':
-            files = FileServiceNoClass.get_files()
+            files = file_service.get_files()
             for f in files:
                 print(f['name'])
         elif command == 'get':
-            print("Enter file name:")
-            input_get = input(f'file:{cli_prompt}')
-            file_obj = FileServiceNoClass.get_file_data(input_get)
-            print(file_obj['content'])
+            print(f"{get_file_data()['content']}")
             continue
         elif command == 'create':
             print(f"Created file: {create_file()['name']}")
@@ -199,5 +197,4 @@ def cli():
 
 if __name__ == '__main__':
     cli_prompt = '> '
-
     main()
