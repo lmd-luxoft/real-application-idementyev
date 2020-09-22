@@ -93,21 +93,21 @@ def create_file(path):
     pass
 
 
-def delete_file(path):
-    """Delete file.
+def delete_file(_path=None):
+    """Delete file in current working directory.
 
     Args:
-        path (str): Working directory path.
-
+        _path (str): Filename without .txt file extension.
     Returns:
-        Str with filename with .txt file extension.
-
+        _file (str): Filename with .txt file extension.
     Raises:
         AssertionError: if file does not exist.
-
     """
-
-    pass
+    if not _path:
+        print("Enter file to remove (no extensions):")
+        _path = input(f'file:{cli_prompt}')
+    _file = FileServiceNoClass.delete_file(_path)
+    return _file
 
 
 def change_dir(_path=None):
@@ -187,10 +187,7 @@ def cli():
             print(f"Created file: {file_obj['name']}")
             continue
         elif command == 'delete':
-            print("Enter file to remove (no extensions):")
-            input_remove = input(f'file:{cli_prompt}')
-            removed = FileServiceNoClass.delete_file(input_remove)
-            print(f"Deleted file: {removed}")
+            print(f"Deleted file: {delete_file()}")
             continue
         elif command == 'exit':
             return

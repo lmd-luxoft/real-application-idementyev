@@ -13,13 +13,10 @@ def change_dir(path):
 
     Args:
         path (str): Path to working directory with files.
-
     Raises:
         AssertionError: if directory does not exist.
-
     Returns:
         path (str): Current working directory.
-
     """
 
     try:
@@ -172,29 +169,21 @@ def create_file(content=None, security_level=None):
 
 
 def delete_file(filename):
-    """Delete file.
+    """Delete file in current working directory.
 
     Args:
         filename (str): Filename without .txt file extension.
-
     Returns:
-        Str with filename with .txt file extension.
-
+        _file (str): Filename with .txt file extension.
     Raises:
         AssertionError: if file does not exist.
-
     """
 
     _file = f'{filename}.{extension}'
-    if not os.path.exists(_file):
-        raise AssertionError(f'File {_file} does not exist')
-
     try:
         os.remove(_file)
-    except OSError as _e:
-        # TODO: again, proper catch should be implemented here
-        raise _e
-
+    except FileNotFoundError as _e:
+        raise AssertionError(f'File {_file} does not exist')
     return _file
 
 
