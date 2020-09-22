@@ -27,7 +27,10 @@ def generate_string() -> str:
 
     """
 
-    pass
+    _letters = string.ascii_letters
+    _digits = string.digits
+    _str = ''.join(random.choice(_letters + _digits) for i in range(20))
+    return _str
 
 
 def convert_date(timestamp: float) -> str:

@@ -105,6 +105,9 @@ def get_files(_directory=None):
                 _input_file = os.path.join(_directory, _f_path)
 
                 # make dictionary
+                # I am lazy so I reuse the code and save everything
+                # without content
+                # TODO: don't be lazy, make a function without content!
                 _full_dict = get_file_data(_input_file)
                 _f_dict = {_i: _full_dict[_i] for _i in _full_dict if _i != 'content'}
 
@@ -140,7 +143,13 @@ def create_file(content=None, security_level=None):
 
     """
 
-    pass
+    _file_name = utils.generate_string()
+    _file = f'{_file_name}.{extension}'
+
+    with open(_file, 'w') as _of:
+        _of.write(content if content else '')
+
+    return get_file_data(_file_name)
 
 
 def delete_file(filename):
@@ -167,3 +176,6 @@ print(get_file_data('../requirements'))
 
 # test get_files
 print(get_files('..'))
+
+# test file creation
+print(create_file())
