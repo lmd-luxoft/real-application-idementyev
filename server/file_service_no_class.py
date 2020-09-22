@@ -55,10 +55,9 @@ def get_file_meta(_file):
     _file_stat = os.stat(_file)
     _file_data_dict['name'] = os.path.basename(_file)
     _file_data_dict['size'] = _file_stat.st_size
-    # TODO: this is heavy, make properly cross-platform
-    # TODO: use conversion from utils
-    _file_data_dict['create_date'] = _file_stat.st_ctime
-    _file_data_dict['edit_date'] = _file_stat.st_mtime
+    # TODO: make cross-platform
+    _file_data_dict['create_date'] = utils.convert_date(_file_stat.st_ctime)
+    _file_data_dict['edit_date'] = utils.convert_date(_file_stat.st_mtime)
 
     return _file_data_dict
 

@@ -5,7 +5,7 @@ import random
 import string
 from datetime import datetime
 
-string_length = 8
+filename_len = 8
 
 
 class SingletonMeta(type):
@@ -29,7 +29,8 @@ def generate_string() -> str:
 
     _letters = string.ascii_letters
     _digits = string.digits
-    _str = ''.join(random.choice(_letters + _digits) for i in range(20))
+    _chars = _letters + _digits
+    _str = ''.join(random.choice(_chars) for i in range(filename_len))
     return _str
 
 
@@ -46,4 +47,5 @@ def convert_date(timestamp: float) -> str:
 
     """
 
-    pass
+    _out_format = '%Y-%m-%d %H:%M:%S'
+    return datetime.fromtimestamp(timestamp).strftime(_out_format)
