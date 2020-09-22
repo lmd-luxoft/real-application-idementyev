@@ -166,8 +166,10 @@ def cli():
 
         if command == 'cd':
             print("Enter directory:")
-            input_cd = input(f'cd:{prompt}')
-            FileServiceNoClass.change_dir(input_cd)
+            input_cd = input(f'path:{prompt}')
+            new_dir = FileServiceNoClass.change_dir(input_cd)
+            print(new_dir)
+            continue
         if command == 'pwd':
             print(os.getcwd())
         elif command == 'list':
@@ -179,15 +181,19 @@ def cli():
             input_get = input(f'file:{prompt}')
             file_obj = FileServiceNoClass.get_file_data(input_get)
             print(file_obj['content'])
+            continue
         elif command == 'create':
             print("Enter file contents:")
             input_contents = input(f'text:{prompt}')
             file_obj = FileServiceNoClass.create_file(input_contents)
-            print(f"Created file {file_obj['name']}")
+            print(f"Created file: {file_obj['name']}")
+            continue
         elif command == 'delete':
             print("Enter file to remove (no extensions):")
             input_remove = input(f'file:{prompt}')
-            print(FileServiceNoClass.delete_file(input_remove))
+            removed = FileServiceNoClass.delete_file(input_remove)
+            print(f"Deleted file: {removed}")
+            continue
         elif command == 'exit':
             return
         else:

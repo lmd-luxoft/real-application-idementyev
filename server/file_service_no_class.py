@@ -200,7 +200,7 @@ def delete_file(filename):
 
 if __name__ == '__main__':
     # test chdir
-    change_dir('..')
+    print(f"new directory: {change_dir('..')}")
 
     # test get_file_data
     print(get_file_data('requirements'))
