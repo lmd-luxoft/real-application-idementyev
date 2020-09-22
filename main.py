@@ -126,7 +126,8 @@ def cli():
     prompt = '> '
 
     print("cd     - change dir")
-    print("get    - get files in dir")
+    print("list   - get files in dir")
+    print("get    - get files contents")
     print("create - create file")
     print("delete - delete file (no extension)")
     print("Enter 'exit' to, well, exit.")
@@ -138,14 +139,20 @@ def cli():
             print("Enter directory:")
             input_cd = input(f'cd:{prompt}')
             FileServiceNoClass.change_dir(input_cd)
-        elif command == 'get':
+        elif command == 'list':
             files = FileServiceNoClass.get_files()
             for f in files:
                 print(f['name'])
+        elif command == 'get':
+            print("Enter file name:")
+            input_get = input(f'file:{prompt}')
+            file_obj = FileServiceNoClass.get_file_data(input_get)
+            print(file_obj['content'])
         elif command == 'create':
             print("Enter file contents:")
             input_contents = input(f'text:{prompt}')
-            print(FileServiceNoClass.create_file(input_contents))
+            file_obj = FileServiceNoClass.create_file(input_contents)
+            print(f"Created file {file_obj['name']}")
         elif command == 'delete':
             print("Enter file to remove (no extensions):")
             input_remove = input(f'file:{prompt}')
