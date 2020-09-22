@@ -3,7 +3,6 @@
 
 
 import os
-import sys
 import server.utils as utils
 
 extension = 'txt'
@@ -27,8 +26,45 @@ def change_dir(path):
         print(f'Dir changed to {path}')
 
 
+def get_file_meta(_file):
+    """Get meta info about file.
+
+    Args:
+        _file (str): Filename with file extension.
+
+    Returns:
+        Dict, which contains full info about file. Keys:
+            name (str): name of file with .txt extension.
+            create_date (str): date of file creation.
+            edit_date (str): date of last file modification.
+            size (int): size of file in bytes.
+
+    Raises:
+        AssertionError: if file does not exist, filename format is invalid,
+        ValueError: if security level is invalid.
+
+    """
+
+    _file_data_dict = {
+        'name': None,
+        'create_date': None,
+        'edit_date': None,
+        'size': None,
+    }
+
+    _file_stat = os.stat(_file)
+    _file_data_dict['name'] = os.path.basename(_file)
+    _file_data_dict['size'] = _file_stat.st_size
+    # TODO: this is heavy, make properly cross-platform
+    # TODO: use conversion from utils
+    _file_data_dict['create_date'] = _file_stat.st_ctime
+    _file_data_dict['edit_date'] = _file_stat.st_mtime
+
+    return _file_data_dict
+
+
 def get_file_data(filename):
-    """Get full info about file.
+    """Get meta info about file and add content.
 
     Args:
         filename (str): Filename without .txt file extension.
@@ -61,24 +97,8 @@ def get_file_data(filename):
         # TODO: get proper 'EPERM' here
         raise _e
 
-    # file exists here
-    _file_stat = os.stat(_file)
-
-    _file_data_dict = {
-        'name': None,
-        'content': None,
-        'create_date': None,
-        'edit_date': None,
-        'size': None,
-    }
-
-    _file_data_dict['name'] = os.path.basename(_file)
+    _file_data_dict = get_file_meta(_file)
     _file_data_dict['content'] = _file_content
-    # TODO: this is heavy, make properly cross-platform
-    # TODO: use conversion from utils
-    _file_data_dict['create_date'] = _file_stat.st_ctime
-    _file_data_dict['edit_date'] = _file_stat.st_mtime
-    _file_data_dict['size'] = _file_stat.st_size
 
     return _file_data_dict
 
@@ -103,16 +123,12 @@ def get_files(_directory=None):
             _f_dict = {}
             _f_path, _f_ext = os.path.splitext(_f)
             if _f_ext == f'.{extension}':
-                _input_file = os.path.join(_directory, _f_path)
+                _meta_file = os.path.join(_directory, _f)
 
                 # make dictionary
-                # I am lazy so I reuse the code and save everything
-                # without content
-                # TODO: don't be lazy, make a function without content!
-                _full_dict = get_file_data(_input_file)
-                _f_dict = {_i: _full_dict[_i] for _i in _full_dict if _i != 'content'}
+                _meta_dict = get_file_meta(_f)
 
-                _files_list.append(_f_dict)
+                _files_list.append(_meta_dict)
 
         # only 1st level
         break
