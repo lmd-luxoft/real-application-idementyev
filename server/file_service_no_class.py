@@ -17,13 +17,17 @@ def change_dir(path):
     Raises:
         AssertionError: if directory does not exist.
 
+    Returns:
+        path (str): Current working directory.
+
     """
 
-    if not os.path.exists(path):
-        raise AssertionError(f'Directory {path} does not exist')
-    else:
+    try:
         os.chdir(path)
-        print(f'Dir changed to {path}')
+    except FileNotFoundError:
+        raise AssertionError(f'Directory {path} does not exist')
+
+    return os.getcwd()
 
 
 def get_file_meta(_file):
@@ -92,7 +96,6 @@ def get_file_data(filename):
         with open(_file, 'r') as _fr:
             _file_content = _fr.read()
     except OSError as _e:
-        #if _e.errno ==
         # TODO: get proper 'EPERM' here
         raise _e
 
