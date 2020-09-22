@@ -1,4 +1,4 @@
-# Copyright 2019 by Kirill Kanin.
+# Copyright 2020 by Kirill Kanin, Ilya Dementyev
 # All rights reserved.
 
 import random

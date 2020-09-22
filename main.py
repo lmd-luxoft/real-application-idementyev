@@ -117,5 +117,33 @@ def main():
     pass
 
 
+def cli():
+    """
+    Make simple CLI infinite cycle with... hope that they won't hack us =(
+    Don't do this. Never.
+    """
+
+    prompt = '> '
+
+    print("cd     - change dir")
+    print("get    - get files in dir")
+    print("create - create file")
+    print("remove - remove file")
+    print("Enter 'exit' to, well, exit.")
+
+    while True:
+        command = input(prompt)
+
+        if command == 'cd':
+            print("Enter directory:")
+            cd = input(f'cd:{prompt}')
+            FileServiceNoClass.change_dir(cd)
+
+        elif command == 'exit':
+            return
+        else:
+            print("Unrecognized command, try again.")
+
+
 if __name__ == '__main__':
-    main()
+    cli()

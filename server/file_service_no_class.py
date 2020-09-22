@@ -75,6 +75,7 @@ def get_file_data(filename):
     _file_data_dict['name'] = os.path.basename(_file)
     _file_data_dict['content'] = _file_content
     # TODO: this is heavy, make properly cross-platform
+    # TODO: use conversion from utils
     _file_data_dict['create_date'] = _file_stat.st_ctime
     _file_data_dict['edit_date'] = _file_stat.st_mtime
     _file_data_dict['size'] = _file_stat.st_size
@@ -179,18 +180,19 @@ def delete_file(filename):
     return _file
 
 
-# test chdir
-change_dir('..')
+if __name__ == '__main__':
+    # test chdir
+    change_dir('..')
 
-# test get_file_data
-print(get_file_data('requirements'))
+    # test get_file_data
+    print(get_file_data('requirements'))
 
-# test get_files
-print(get_files('.'))
+    # test get_files
+    print(get_files('.'))
 
-# test file creation
-created = create_file('Lorem Ipsum')
-created_file, _ext = os.path.splitext(created['name'])
+    # test file creation
+    created = create_file('Lorem Ipsum')
+    created_file, _ext = os.path.splitext(created['name'])
 
-# test file deletion
-print(delete_file(created_file))
+    # test file deletion
+    print(delete_file(created_file))
