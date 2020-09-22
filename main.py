@@ -110,18 +110,20 @@ def delete_file(path):
     pass
 
 
-def change_dir(path):
+def change_dir(_path=None):
     """Change working directory.
 
     Args:
-        path (str): Working directory path.
-
+        _path (str): Working directory path.
     Returns:
-        Str with successfully result.
-
+        _new_dir (str): New working directory.
     """
 
-    pass
+    if not _path:
+        print("Enter directory:")
+        _path = input(f'path:{cli_prompt}')
+    _new_dir = FileServiceNoClass.change_dir(_path)
+    return _new_dir
 
 
 def main():
@@ -139,7 +141,8 @@ def main():
     args, _ = commandline_parser().parse_known_args()
 
     if args.directory:
-        FileServiceNoClass.change_dir(args.directory)
+        _pwd = change_dir(args.directory)
+        print(f"Directory changed to {_pwd}.")
 
     # run CLI
     cli()
@@ -151,8 +154,6 @@ def cli():
     Don't do this. Never.
     """
 
-    prompt = '> '
-
     print("cd     - change dir")
     print("pwd    - print current dir")
     print("list   - get files in dir")
@@ -162,13 +163,10 @@ def cli():
     print("Enter 'exit' to, well, exit.")
 
     while True:
-        command = input(prompt)
+        command = input(cli_prompt)
 
         if command == 'cd':
-            print("Enter directory:")
-            input_cd = input(f'path:{prompt}')
-            new_dir = FileServiceNoClass.change_dir(input_cd)
-            print(new_dir)
+            print(change_dir())
             continue
         if command == 'pwd':
             print(os.getcwd())
@@ -178,19 +176,19 @@ def cli():
                 print(f['name'])
         elif command == 'get':
             print("Enter file name:")
-            input_get = input(f'file:{prompt}')
+            input_get = input(f'file:{cli_prompt}')
             file_obj = FileServiceNoClass.get_file_data(input_get)
             print(file_obj['content'])
             continue
         elif command == 'create':
             print("Enter file contents:")
-            input_contents = input(f'text:{prompt}')
+            input_contents = input(f'text:{cli_prompt}')
             file_obj = FileServiceNoClass.create_file(input_contents)
             print(f"Created file: {file_obj['name']}")
             continue
         elif command == 'delete':
             print("Enter file to remove (no extensions):")
-            input_remove = input(f'file:{prompt}')
+            input_remove = input(f'file:{cli_prompt}')
             removed = FileServiceNoClass.delete_file(input_remove)
             print(f"Deleted file: {removed}")
             continue
@@ -201,4 +199,6 @@ def cli():
 
 
 if __name__ == '__main__':
+    cli_prompt = '> '
+
     main()
