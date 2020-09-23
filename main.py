@@ -1,6 +1,6 @@
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 __author__ = 'idementyev@luxoft.com'
-__date__ = '2020-09-22'
+__date__ = '2020-09-23'
 
 
 import argparse

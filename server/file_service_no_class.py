@@ -1,9 +1,11 @@
-# Copyright 2020 by Kirill Kanin, Ilya Dementyev
-# All rights reserved.
+__version__ = '0.1.1'
+__author__ = 'idementyev@luxoft.com'
+__date__ = '2020-09-23'
 
 
 import os
 import server.utils as utils
+import logging as log
 
 extension = 'txt'
 
@@ -22,7 +24,7 @@ def change_dir(path):
     try:
         os.chdir(path)
     except FileNotFoundError:
-        raise AssertionError(f'Directory {path} does not exist')
+        log.error(f'Directory {path} does not exist')
 
     return os.getcwd()
 
@@ -53,7 +55,7 @@ def get_file_meta(_file):
         _file_data['create_date'] = utils.convert_date(_file_stat.st_ctime)
         _file_data['edit_date'] = utils.convert_date(_file_stat.st_mtime)
     except FileNotFoundError as _e:
-        raise AssertionError(f'File {_file} does not exist')
+        log.error(f'File {_file} does not exist')
 
     return _file_data
 
@@ -83,6 +85,7 @@ def get_file_data(filename):
     # no checks here because get_file_meta() already has them.
     with open(_file, 'r') as _fr:
         _file_content = _fr.read()
+        log.debug(f'Data read from {_file} successfully.')
     _file_data_dict['content'] = _file_content
 
     return _file_data_dict
@@ -145,11 +148,13 @@ def create_file(content=None, security_level=None):
 
     # check for existing files with recursion
     while os.path.exists(_file):
+        log.info(f'File with name {_file} exists, regenerating name.')
         _file_data = create_file(content, security_level)
         return _file_data
     else:
         with open(_file, 'w') as _of:
             _of.write(content if content else '')
+            log.info(f'Data written to file {_file}')
         _file_data = get_file_data(_file_name)
         return _file_data
 
@@ -169,8 +174,21 @@ def delete_file(filename):
     try:
         os.remove(_file)
     except FileNotFoundError as _e:
-        raise AssertionError(f'File {_file} does not exist')
+        log.error(f'File {_file} does not exist.')
+        return None
+    else:
+        log.info(f'File {_file} removed successfully.')
     return _file
+
+
+log_format = '%(asctime)s %(levelname)s %(message)s'
+log_level = 'DEBUG'
+
+# override long names with short ones
+for level, letter in zip((10, 20, 30, 40, 50), 'DIWEC'):
+    log.addLevelName(level, letter)
+log.basicConfig(format=log_format, level=log_level)
+log.debug('Log level set to {lvl}'.format(lvl=log_level))
 
 
 if __name__ == '__main__':
