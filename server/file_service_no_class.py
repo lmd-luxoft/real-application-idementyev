@@ -195,15 +195,15 @@ if __name__ == '__main__':
     # test chdir
     print(f"new directory: {change_dir('..')}")
 
-    # test get_file_data
-    print(get_file_data('requirements'))
+    # test file creation
+    created = create_file('Lorem Ipsum')
+    created_file, _ext = os.path.splitext(created['name'])
 
     # test get_files
     print(get_files('.'))
 
-    # test file creation
-    created = create_file('Lorem Ipsum')
-    created_file, _ext = os.path.splitext(created['name'])
+    # test get_file_data
+    print(get_file_data(created_file))
 
     # test file deletion
     print(delete_file(created_file))
