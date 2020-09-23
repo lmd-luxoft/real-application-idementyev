@@ -1,5 +1,6 @@
-# Copyright 2020 by Kirill Kanin, Ilya Dementyev
-# All rights reserved.
+__version__ = '0.2.0'
+__author__ = 'idementyev@luxoft.com'
+__date__ = '2020-09-23'
 
 
 import random
@@ -10,10 +11,7 @@ filename_len = 8
 
 
 class SingletonMeta(type):
-    """Meta class for singletons.
-
-    """
-
+    """Meta class for singletons."""
     def __call__(cls):
         pass
 
@@ -26,7 +24,6 @@ def generate_string() -> str:
     Returns:
         str: random string.
     """
-
     _letters = string.ascii_letters
     _digits = string.digits
     _chars = _letters + _digits
@@ -44,6 +41,5 @@ def convert_date(timestamp: float) -> str:
     Returns:
         str: converted date.
     """
-
     _out_format = '%Y-%m-%d %H:%M:%S'
     return datetime.fromtimestamp(timestamp).strftime(_out_format)

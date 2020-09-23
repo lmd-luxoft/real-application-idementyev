@@ -26,7 +26,6 @@ def commandline_parser() -> argparse.ArgumentParser:
     -i --init      - initialize database.
     -h --help      - help.
     """
-
     # noinspection PyTypeChecker
     # (broken in PyCharm 2020.x)
     p = argparse.ArgumentParser(
@@ -67,7 +66,6 @@ def get_file_data(_file=None):
         AssertionError: if file does not exist, filename format is invalid,
         ValueError: if security level is invalid.
     """
-
     if not _file:
         print("Enter file name:")
         _file = input(f'file:{cli_prompt}')
@@ -96,7 +94,6 @@ def create_file(_content=None):
         AssertionError: if user_id is not set,
         ValueError: if security level is invalid.
     """
-
     if not _content:
         print("Enter file contents:")
         _content = input(f'text:{cli_prompt}')
@@ -114,7 +111,6 @@ def delete_file(_path=None):
     Raises:
         AssertionError: if file does not exist.
     """
-
     if not _path:
         print("Enter file to remove (no extensions):")
         _path = input(f'file:{cli_prompt}')
@@ -140,7 +136,6 @@ def change_dir(_path=None):
 
 def main():
     """Entry point of app."""
-
     args, _ = commandline_parser().parse_known_args()
 
     # check passed verbosity against default value
@@ -166,7 +161,6 @@ def cli_help():
     """
     Display command list for CLI with pretty formatting.
     """
-
     cli_commands_help = {
         'cd': 'change current directory',
         'pwd': 'print current directory',
@@ -188,7 +182,6 @@ def cli():
     Make simple CLI infinite cycle with... hope that they won't hack us =(
     Don't do this. Never.
     """
-
     cli_help()
 
     while True:

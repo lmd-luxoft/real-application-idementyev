@@ -20,7 +20,6 @@ def change_dir(path):
     Returns:
         path (str): Current working directory.
     """
-
     try:
         os.chdir(path)
     except FileNotFoundError:
@@ -45,7 +44,6 @@ def get_file_meta(_file):
         AssertionError: if file does not exist, filename format is invalid,
         ValueError: if security level is invalid.
     """
-
     _file_data = {}
 
     try:
@@ -77,7 +75,6 @@ def get_file_data(filename):
         AssertionError: if file does not exist, filename format is invalid,
         ValueError: if security level is invalid.
     """
-
     _file = f'{filename}.{extension}'
     _file_content = None
     _file_data_dict = get_file_meta(_file)
@@ -104,7 +101,6 @@ def get_files(_directory=None):
             edit_date (str): date of last file modification.
             size (int): size of file in bytes.
     """
-
     _directory = _directory if _directory else os.getcwd()
     _files_list = []
 
@@ -142,7 +138,6 @@ def create_file(content=None, security_level=None):
         AssertionError: if user_id is not set.
         ValueError: if security level is invalid.
     """
-
     _file_name = utils.generate_string()
     _file = f'{_file_name}.{extension}'
 
@@ -169,7 +164,6 @@ def delete_file(filename):
     Raises:
         AssertionError: if file does not exist.
     """
-
     _file = f'{filename}.{extension}'
     try:
         os.remove(_file)
