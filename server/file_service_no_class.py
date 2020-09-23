@@ -1,4 +1,4 @@
-__version__ = '0.1.1'
+__version__ = '0.2.0'
 __author__ = 'idementyev@luxoft.com'
 __date__ = '2020-09-23'
 
@@ -181,14 +181,20 @@ def delete_file(filename):
     return _file
 
 
-log_format = '%(asctime)s %(levelname)s %(message)s'
-log_level = 'DEBUG'
+def set_logging(log_level='INFO'):
+    """Set logging level.
 
-# override long names with short ones
-for level, letter in zip((10, 20, 30, 40, 50), 'DIWEC'):
-    log.addLevelName(level, letter)
-log.basicConfig(format=log_format, level=log_level)
-log.debug('Log level set to {lvl}'.format(lvl=log_level))
+    Logging level is passed from main.py or default INFO level is used.
+    """
+    log_format = '%(asctime)s %(levelname)s %(message)s'
+
+    # override long names with short ones
+    for level, letter in zip((10, 20, 30, 40, 50), 'DIWEC'):
+        # noinspection PyTypeChecker
+        # (broken in PyCharm 2020.x)
+        log.addLevelName(level, letter)
+    log.basicConfig(format=log_format, level=log_level)
+    log.debug('Log level set to {lvl}'.format(lvl=log_level))
 
 
 if __name__ == '__main__':

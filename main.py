@@ -1,4 +1,4 @@
-__version__ = '0.1.1'
+__version__ = '0.2.0'
 __author__ = 'idementyev@luxoft.com'
 __date__ = '2020-09-23'
 
@@ -18,7 +18,13 @@ import server.file_service_no_class as file_service
 def commandline_parser() -> argparse.ArgumentParser:
     """Command line parser.
 
-    Parse port and working directory parameters from command line.
+    Get and parse command line parameters and configure web app.
+    Command line options:
+    -p --port      - port (default: 8080).
+    -d --directory - working directory (absolute or relative path,
+                     default: current app folder FileServer).
+    -i --init      - initialize database.
+    -h --help      - help.
     """
 
     # noinspection PyTypeChecker
@@ -133,22 +139,24 @@ def change_dir(_path=None):
 
 
 def main():
-    """Entry point of app.
-
-    Get and parse command line parameters and configure web app.
-    Command line options:
-    -p --port      - port (default: 8080).
-    -d --directory - working directory (absolute or relative path,
-                     default: current app folder FileServer).
-    -i --init      - initialize database.
-    -h --help      - help.
-    """
+    """Entry point of app."""
 
     args, _ = commandline_parser().parse_known_args()
 
+    # check passed verbosity against default value
+    if args.verbose:
+        log_level = 'DEBUG'
+    elif args.quiet:
+        log_level = 'WARNING'
+    else:
+        log_level = 'INFO'
+
+    # initialize logging in the 'file_service' module
+    file_service.set_logging(log_level)
+
     if args.directory:
         _pwd = change_dir(args.directory)
-        print(f"Directory changed to {_pwd}.")
+        file_service.log.info(f"Directory set to {_pwd}.")
 
     # run CLI
     cli()
