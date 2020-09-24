@@ -85,28 +85,34 @@ class FileService(metaclass=SingletonType):
         return _file_data
 
     def get_file_data(self, filename: str, user_id: int = None) -> typing.Dict:
-        """Get full info about file.
+        """Get full info about file with content.
 
         Args:
-            filename (str): Filename without .txt file extension,
-            user_id (int): User Id.
-
+            filename (str): Filename without .txt file extension.
         Returns:
-            Dict, which contains full info about file. Keys:
+            _file_data_dict (dict): Dictionary with full info about file.
+            Keys:
                 name (str): name of file with .txt extension.
                 content (str): file content.
                 create_date (str): date of file creation.
                 edit_date (str): date of last file modification.
-                size (int): size of file in bytes,
-                user_id (int): user Id.
-
+                size (int): size of file in bytes.
         Raises:
             AssertionError: if file does not exist, filename format is invalid,
             ValueError: if security level is invalid.
-
         """
+        _file = f'{filename}.{self.__extension}'
+        _file_full_path = os.path.join(self.path, _file)
+        _file_content = None
+        _file_data_dict = self.get_file_meta(_file_full_path)
 
-        pass
+        # no checks here because get_file_meta() already has them.
+        with open(_file_full_path, 'r') as _fr:
+            _file_content = _fr.read()
+            log.debug(f'Data read from {_file} successfully.')
+        _file_data_dict['content'] = _file_content
+
+        return _file_data_dict
 
     async def get_file_data_async(self, filename: str, user_id: int = None) -> typing.Dict[str, str]:
         """Get full info about file. Asynchronous version.
@@ -157,17 +163,19 @@ class FileService(metaclass=SingletonType):
 
         return _files_list
 
-    async def create_file(
-            self, content: str = None, security_level: str = None, user_id: int = None) -> typing.Dict[str, str]:
+    # async def create_file(self, content: str = None,
+    def create_file(self, content: str = None,
+                          security_level: str = None,
+                          user_id: int = None) -> typing.Dict[str, str]:
         """Create new .txt file.
 
-        Method generates name of file from random string with digits and latin letters.
+        Method generates name of file from random string with digits
+        and latin letters.
 
         Args:
             content (str): String with file content,
             security_level (str): String with security level,
             user_id (int): User Id.
-
         Returns:
             Dict, which contains name of created file. Keys:
                 name (str): name of file with .txt extension.
@@ -175,14 +183,25 @@ class FileService(metaclass=SingletonType):
                 create_date (str): date of file creation.
                 size (int): size of file in bytes,
                 user_id (int): user Id.
-
         Raises:
             AssertionError: if user_id is not set,
             ValueError: if security level is invalid.
-
         """
+        _file_name = utils.generate_string()
+        _file = f'{_file_name}.{self.__extension}'
+        _file_full_path = os.path.join(self.path, _file)
 
-        pass
+        # check for existing files with recursion
+        while os.path.exists(_file_full_path):
+            log.info(f'File with name {_file} exists, regenerating name.')
+            _file_data = self.create_file(content, security_level)
+            return _file_data
+        else:
+            with open(_file_full_path, 'w') as _of:
+                _of.write(content if content else '')
+                log.info(f'Data written to file {_file}')
+            _file_data = self.get_file_data(_file_name)
+            return _file_data
 
     def delete_file(self, filename: str):
         """Delete file.
@@ -197,8 +216,17 @@ class FileService(metaclass=SingletonType):
             AssertionError: if file does not exist.
 
         """
+        _file = f'{filename}.{self.__extension}'
+        _file_full_path = os.path.join(self.path, _file)
 
-        pass
+        try:
+            os.remove(_file_full_path)
+        except FileNotFoundError as _e:
+            log.error(f'File {_file} does not exist.')
+            return None
+        else:
+            log.info(f'File {_file} removed successfully.')
+        return _file_full_path
 
 
 class FileServiceSigned(FileService):
@@ -301,15 +329,22 @@ class FileServiceSigned(FileService):
 
 if __name__ == '__main__':
     fs = FileService()
-    print(fs.path)
+    fs.path = '.'
+    original_path = fs.path
+    #print(fs.path)
+    print(original_path)
 
-    fs.path = '..'
-    print(fs.path)
+    fs.path = original_path
 
-    fs.path = '/home'
-    print(fs.path)
-
-    fs.path = '/home/rez/python/script-007'
+    # test file creation
+    created = fs.create_file('Lorem Ipsum')
+    created_file, _ext = os.path.splitext(created['name'])
 
     # test get_files
     print(fs.get_files())
+
+    # test get_file_data
+    print(fs.get_file_data(created_file))
+
+    # test file deletion
+    print(fs.delete_file(created_file))
