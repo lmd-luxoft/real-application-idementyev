@@ -5,8 +5,8 @@ import os
 import logging as log
 import typing
 import server.utils as utils
-from collections import OrderedDict
-from server.crypto import BaseCipher, AESCipher, RSACipher, HashAPI
+# from collections import OrderedDict
+# from server.crypto import BaseCipher, AESCipher, RSACipher, HashAPI
 
 
 class SingletonType(type):
@@ -14,20 +14,18 @@ class SingletonType(type):
         try:
             return cls.__instance
         except AttributeError:
-            cls.__instance = super(SingletonType, cls).__call__(*args, **kwargs)
+            cls.__instance = super(
+                SingletonType, cls).__call__(*args, **kwargs)
             return cls.__instance
 
 
 class FileService(metaclass=SingletonType):
     """Singleton class with methods for working with file system."""
-
-    # def __new__(cls, *args, **kwargs):
-    #     pass
-
     __extension = None
     __directory = None
 
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
+    def __init__(self):
         self.__extension = 'txt'
         self.__directory = '.'
 
@@ -47,12 +45,16 @@ class FileService(metaclass=SingletonType):
         Args:
             value (str): Working directory path.
         """
-        if os.path.isabs(value):
-            self.__directory = value
+        _path = value
+        if not os.path.isabs(value):
+            _path = os.path.abspath(os.path.normpath(os.path.join(
+                self.__directory, value)))
+
+        if not os.path.exists(_path):
+            log.error(f'Directory {_path} does not exist')
+            raise FileNotFoundError
         else:
-            self.__directory = os.path.abspath(
-                os.path.normpath(
-                    os.path.join(self.__directory, value)))
+            self.__directory = _path
 
     @staticmethod
     def get_file_meta(_file):
@@ -89,6 +91,7 @@ class FileService(metaclass=SingletonType):
 
         Args:
             filename (str): Filename without .txt file extension.
+            user_id: Id of user.
         Returns:
             _file_data_dict (dict): Dictionary with full info about file.
             Keys:
@@ -114,13 +117,13 @@ class FileService(metaclass=SingletonType):
 
         return _file_data_dict
 
-    async def get_file_data_async(self, filename: str, user_id: int = None) -> typing.Dict[str, str]:
+    async def get_file_data_async(
+            self, filename: str, user_id: int = None) -> typing.Dict:
         """Get full info about file. Asynchronous version.
 
         Args:
             filename (str): Filename without .txt file extension,
             user_id (int): User Id.
-
         Returns:
             Dict, which contains full info about file. Keys:
                 name (str): name of file with .txt extension.
@@ -129,13 +132,10 @@ class FileService(metaclass=SingletonType):
                 edit_date (str): date of last file modification.
                 size (int): size of file in bytes,
                 user_id (int): user Id.
-
         Raises:
             AssertionError: if file does not exist, filename format is invalid,
             ValueError: if security level is invalid.
-
         """
-
         pass
 
     def get_files(self) -> typing.List[typing.Dict[str, str]]:
@@ -165,8 +165,8 @@ class FileService(metaclass=SingletonType):
 
     # async def create_file(self, content: str = None,
     def create_file(self, content: str = None,
-                          security_level: str = None,
-                          user_id: int = None) -> typing.Dict[str, str]:
+                    security_level: str = None,
+                    user_id: int = None) -> typing.Dict:
         """Create new .txt file.
 
         Method generates name of file from random string with digits
@@ -228,90 +228,8 @@ class FileService(metaclass=SingletonType):
             log.info(f'File {_file} removed successfully.')
         return _file_full_path
 
-
-class FileServiceSigned(FileService):
-    """Singleton class with methods for working with file system and file signatures.
-
-    """
-
-    def get_file_data(self, filename: str, user_id: int = None) -> typing.Dict[str, str]:
-        """Get full info about file.
-
-        Args:
-            filename (str): Filename without .txt file extension,
-            user_id (int): User Id.
-
-        Returns:
-            Dict, which contains full info about file. Keys:
-                name (str): name of file with .txt extension.
-                content (str): file content.
-                create_date (str): date of file creation.
-                edit_date (str): date of last file modification.
-                size (int): size of file in bytes,
-                user_id (int): user Id.
-
-        Raises:
-            AssertionError: if file does not exist, filename format is invalid, signatures are not match,
-            signature file does not exist,
-            ValueError: if security level is invalid.
-
-        """
-
-        pass
-
-    async def get_file_data_async(self, filename: str, user_id: int = None) -> typing.Dict[str, str]:
-        """Get full info about file. Asynchronous version.
-
-        Args:
-            filename (str): Filename without .txt file extension,
-            user_id (int): User Id.
-
-        Returns:
-            Dict, which contains full info about file. Keys:
-                name (str): name of file with .txt extension.
-                content (str): file content.
-                create_date (str): date of file creation.
-                edit_date (str): date of last file modification.
-                size (int): size of file in bytes,
-                user_id (int): user Id.
-
-        Raises:
-            AssertionError: if file does not exist, filename format is invalid, signatures are not match,
-            signature file does not exist,
-            ValueError: if security level is invalid.
-
-        """
-
-        pass
-
-    async def create_file(
-            self, content: str = None, security_level: str = None, user_id: int = None) -> typing.Dict[str, str]:
-        """Create new .txt file with signature file.
-
-        Method generates name of file from random string with digits and latin letters.
-
-        Args:
-            content (str): String with file content,
-            security_level (str): String with security level,
-            user_id (int): User Id.
-
-        Returns:
-            Dict, which contains name of created file. Keys:
-                name (str): name of file with .txt extension.
-                content (str): file content.
-                create_date (str): date of file creation.
-                size (int): size of file in bytes,
-                user_id (int): user Id.
-
-        Raises:
-            AssertionError: if user_id is not set,
-            ValueError: if security level is invalid.
-
-        """
-
-        pass
-
-    def set_logging(self, log_level='INFO'):
+    @staticmethod
+    def set_logging(log_level='INFO'):
         """Set logging level.
 
         Logging level is passed from main.py or default INFO level is used.
@@ -327,11 +245,84 @@ class FileServiceSigned(FileService):
         log.debug('Log level set to {lvl}'.format(lvl=log_level))
 
 
+class FileServiceSigned(FileService):
+    """Singleton class with methods for working with file system
+    and file signatures.
+    """
+    def get_file_data(
+            self, filename: str, user_id: int = None) -> typing.Dict:
+        """Get full info about file.
+
+        Args:
+            filename (str): Filename without .txt file extension,
+            user_id (int): User Id.
+        Returns:
+            Dict, which contains full info about file. Keys:
+                name (str): name of file with .txt extension.
+                content (str): file content.
+                create_date (str): date of file creation.
+                edit_date (str): date of last file modification.
+                size (int): size of file in bytes.
+                user_id (int): user Id.
+        Raises:
+            AssertionError: if file does not exist, filename format is invalid,
+            signatures are not match, signature file does not exist.
+            ValueError: if security level is invalid.
+        """
+        pass
+
+    async def get_file_data_async(
+            self, filename: str, user_id: int = None) -> typing.Dict:
+        """Get full info about file. Asynchronous version.
+
+        Args:
+            filename (str): Filename without .txt file extension,
+            user_id (int): User Id.
+        Returns:
+            Dict, which contains full info about file. Keys:
+                name (str): name of file with .txt extension.
+                content (str): file content.
+                create_date (str): date of file creation.
+                edit_date (str): date of last file modification.
+                size (int): size of file in bytes.
+                user_id (int): user Id.
+        Raises:
+            AssertionError: if file does not exist, filename format is invalid,
+            signatures are not match, signature file does not exist.
+            ValueError: if security level is invalid.
+        """
+        pass
+
+    async def create_file(self, content: str = None,
+                          security_level: str = None,
+                          user_id: int = None) -> typing.Dict:
+        """Create new .txt file with signature file.
+
+        Method generates name of file from random string with digits
+        and latin letters.
+
+        Args:
+            content (str): String with file content,
+            security_level (str): String with security level,
+            user_id (int): User Id.
+        Returns:
+            Dict, which contains name of created file. Keys:
+                name (str): name of file with .txt extension.
+                content (str): file content.
+                create_date (str): date of file creation.
+                size (int): size of file in bytes.
+                user_id (int): user Id.
+        Raises:
+            AssertionError: if user_id is not set.
+            ValueError: if security level is invalid.
+        """
+        pass
+
+
 if __name__ == '__main__':
     fs = FileService()
     fs.path = '.'
     original_path = fs.path
-    #print(fs.path)
     print(original_path)
 
     fs.path = original_path

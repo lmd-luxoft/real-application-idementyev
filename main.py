@@ -12,7 +12,8 @@ import os
 # from server.handler import Handler
 # from server.database import DataBase
 # from server.file_service import FileService, FileServiceSigned
-import server.file_service_no_class as file_service
+import server.file_service
+# import server.file_service_no_class as file_service
 
 
 def commandline_parser() -> argparse.ArgumentParser:
@@ -130,8 +131,12 @@ def change_dir(_path=None):
     if not _path:
         print("Enter directory:")
         _path = input(f'path:{cli_prompt}')
-    _new_dir = file_service.change_dir(_path)
-    return _new_dir
+    try:
+        file_service.path = _path
+    except FileNotFoundError:
+        pass
+    else:
+        print(file_service.path)
 
 
 def main():
@@ -151,7 +156,7 @@ def main():
 
     if args.directory:
         _pwd = change_dir(args.directory)
-        file_service.log.info(f"Directory set to {_pwd}.")
+        server.file_service.log.info(f"Directory set to {_pwd}.")
 
     # run CLI
     cli()
@@ -188,7 +193,7 @@ def cli():
         command = input(cli_prompt)
 
         if command == 'cd':
-            print(change_dir())
+            change_dir()
             continue
         if command == 'pwd':
             print(os.getcwd())
@@ -209,10 +214,13 @@ def cli():
             cli_help()
         elif command == 'exit':
             return
+        elif not command:
+            continue
         else:
             print("Unrecognized command, try again.")
 
 
 if __name__ == '__main__':
     cli_prompt = '> '
+    file_service = server.file_service.FileService()
     main()
