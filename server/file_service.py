@@ -1,5 +1,7 @@
-# Copyright 2019 by Kirill Kanin.
-# All rights reserved.
+__version__ = '0.3.0'
+__author__ = 'idementyev@luxoft.com'
+__date__ = '2020-09-24'
+
 
 import os
 import logging as log
