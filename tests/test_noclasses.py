@@ -1,3 +1,8 @@
+__version__ = '0.3.0'
+__author__ = 'idementyev@luxoft.com'
+__date__ = '2020-09-24'
+
+
 import pytest
 import server.utils as utils
 from datetime import datetime, timezone
