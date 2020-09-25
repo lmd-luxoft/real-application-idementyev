@@ -119,7 +119,8 @@ class FileService(metaclass=SingletonType):
 
         return _file_data_dict
 
-    async def get_file_data_async(
+    #async def get_file_data_async(
+    def get_file_data_async(
             self, filename: str, user_id: int = None) -> typing.Dict:
         """Get full info about file. Asynchronous version.
 
@@ -251,6 +252,9 @@ class FileServiceSigned(FileService):
     """Singleton class with methods for working with file system
     and file signatures.
     """
+    def __init__(self):
+        super(FileServiceSigned, self).__init__()
+
     def get_file_data(
             self, filename: str, user_id: int = None) -> typing.Dict:
         """Get full info about file.
@@ -271,9 +275,10 @@ class FileServiceSigned(FileService):
             signatures are not match, signature file does not exist.
             ValueError: if security level is invalid.
         """
-        pass
+        return super(FileServiceSigned, self).get_file_data(filename, user_id)
 
-    async def get_file_data_async(
+    #async def get_file_data_async(
+    def get_file_data_async(
             self, filename: str, user_id: int = None) -> typing.Dict:
         """Get full info about file. Asynchronous version.
 
@@ -293,11 +298,12 @@ class FileServiceSigned(FileService):
             signatures are not match, signature file does not exist.
             ValueError: if security level is invalid.
         """
-        pass
+        return super(FileServiceSigned, self).get_file_data_async(filename, user_id)
 
-    async def create_file(self, content: str = None,
-                          security_level: str = None,
-                          user_id: int = None) -> typing.Dict:
+    #async def create_file(self, content: str = None,
+    def create_file(self, content: str = None,
+                    security_level: str = None,
+                    user_id: int = None) -> typing.Dict:
         """Create new .txt file with signature file.
 
         Method generates name of file from random string with digits
@@ -318,11 +324,12 @@ class FileServiceSigned(FileService):
             AssertionError: if user_id is not set.
             ValueError: if security level is invalid.
         """
-        pass
+        return super(FileServiceSigned, self).create_file(content, security_level, user_id)
 
 
 if __name__ == '__main__':
-    fs = FileService()
+    #fs = FileService()
+    fs = FileServiceSigned()
     fs.path = '.'
     original_path = fs.path
     print(original_path)

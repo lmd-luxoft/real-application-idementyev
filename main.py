@@ -222,5 +222,6 @@ def cli():
 
 if __name__ == '__main__':
     cli_prompt = '> '
-    file_service = server.file_service.FileService()
+    #file_service = server.file_service.FileService()
+    file_service = server.file_service.FileServiceSigned()
     main()

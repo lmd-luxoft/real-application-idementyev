@@ -12,9 +12,7 @@ key_folder = os.environ['KEY_DIR']
 
 
 class HashAPI:
-    """Class with static methods for generating hashes.
-
-    """
+    """Class with static methods for generating hashes."""
 
     @staticmethod
     def hash_sha512(input_str: str) -> str:
@@ -22,15 +20,11 @@ class HashAPI:
 
         Args:
             input_str (str): Input string.
-
         Returns:
             Str with hash in hex format.
-
         Raises:
             AssertionError: if input string is not set.
-
         """
-
         pass
 
     @staticmethod
@@ -39,15 +33,11 @@ class HashAPI:
 
         Args:
             input_str (str): Input string.
-
         Returns:
             Str with hash in hex format.
-
         Raises:
             AssertionError: if input string is not set.
-
         """
-
         pass
 
 
