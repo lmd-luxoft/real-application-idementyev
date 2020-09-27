@@ -70,7 +70,7 @@ def get_file_data(_file=None):
     if not _file:
         print("Enter file name:")
         _file = input(f'file:{cli_prompt}')
-    _file_obj = file_service.get_file_data(_file)
+    _file_obj = file_service.get_file_data_hashed(_file)
 
     return _file_obj
 
@@ -202,7 +202,7 @@ def cli():
             for f in files:
                 print(f['name'])
         elif command == 'get':
-            print(f"{get_file_data()['content']}")
+            print(f"{get_file_data().get('content', '')}")
             continue
         elif command == 'create':
             print(f"Created file: {create_file()['name']}")

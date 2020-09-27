@@ -7,8 +7,7 @@ import os
 import logging as log
 import typing
 import server.utils as utils
-# from collections import OrderedDict
-# from server.crypto import BaseCipher, AESCipher, RSACipher, HashAPI
+from server.crypto import BaseCipher, AESCipher, RSACipher, HashAPI
 
 
 class SingletonType(type):
@@ -106,6 +105,7 @@ class FileService(metaclass=SingletonType):
             AssertionError: if file does not exist, filename format is invalid,
             ValueError: if security level is invalid.
         """
+        log.debug('unhashed get_file_data')
         _file = f'{filename}.{self.__extension}'
         _file_full_path = os.path.join(self.path, _file)
         _file_content = None
@@ -116,12 +116,12 @@ class FileService(metaclass=SingletonType):
             _file_content = _fr.read()
             log.debug(f'Data read from {_file} successfully.')
         _file_data_dict['content'] = _file_content
-
+        log.debug(f'unhashed _file_data_dict: {_file_data_dict}')
+        log.debug('unhashed get_file_data leave')
         return _file_data_dict
 
-    #async def get_file_data_async(
-    def get_file_data_async(
-            self, filename: str, user_id: int = None) -> typing.Dict:
+    async def get_file_data_async(self, filename: str,
+                                  user_id: int = None) -> typing.Dict:
         """Get full info about file. Asynchronous version.
 
         Args:
@@ -150,7 +150,6 @@ class FileService(metaclass=SingletonType):
                 create_date (str): date of file creation.
                 edit_date (str): date of last file modification.
                 size (str): size of file in bytes.
-
         """
         _files_list = []
 
@@ -190,6 +189,7 @@ class FileService(metaclass=SingletonType):
             AssertionError: if user_id is not set,
             ValueError: if security level is invalid.
         """
+        log.debug('unhashed create_file')
         _file_name = utils.generate_string()
         _file = f'{_file_name}.{self.__extension}'
         _file_full_path = os.path.join(self.path, _file)
@@ -204,6 +204,8 @@ class FileService(metaclass=SingletonType):
                 _of.write(content if content else '')
                 log.info(f'Data written to file {_file}')
             _file_data = self.get_file_data(_file_name)
+            log.debug(f'unhashed _file_data: {_file_data}')
+            log.debug('unhashed create_file leave')
             return _file_data
 
     def delete_file(self, filename: str):
@@ -211,13 +213,10 @@ class FileService(metaclass=SingletonType):
 
         Args:
             filename (str): Filename without .txt file extension.
-
         Returns:
             Str with filename with .txt file extension.
-
         Raises:
             AssertionError: if file does not exist.
-
         """
         _file = f'{filename}.{self.__extension}'
         _file_full_path = os.path.join(self.path, _file)
@@ -255,7 +254,7 @@ class FileServiceSigned(FileService):
     def __init__(self):
         super(FileServiceSigned, self).__init__()
 
-    def get_file_data(
+    def get_file_data_hashed(
             self, filename: str, user_id: int = None) -> typing.Dict:
         """Get full info about file.
 
@@ -275,11 +274,25 @@ class FileServiceSigned(FileService):
             signatures are not match, signature file does not exist.
             ValueError: if security level is invalid.
         """
-        return super(FileServiceSigned, self).get_file_data(filename, user_id)
+        log.debug('..hashed get_file_data')
+        _file_data = super(FileServiceSigned, self).get_file_data(filename, user_id)
+        log.debug(f'..hashed _file_data: {_file_data}')
+        md5_file_name = f"{_file_data['name']}.md5"
 
-    #async def get_file_data_async(
-    def get_file_data_async(
-            self, filename: str, user_id: int = None) -> typing.Dict:
+        if os.path.exists(md5_file_name):
+            hashed_data = HashAPI.hash_md5('__'.join(map(str, _file_data.values())))
+            with open(md5_file_name) as md5file:
+                if hashed_data == md5file.read():
+                    return _file_data
+                else:
+                    log.error(f"Failed checksum on file {_file_data['name']}.")
+                    return {}
+        else:
+            log.error(f"File {_file_data['name']} was not hashed on creation.")
+            return {}
+
+    async def get_file_data_async(self, filename: str,
+                                  user_id: int = None) -> typing.Dict:
         """Get full info about file. Asynchronous version.
 
         Args:
@@ -298,9 +311,9 @@ class FileServiceSigned(FileService):
             signatures are not match, signature file does not exist.
             ValueError: if security level is invalid.
         """
-        return super(FileServiceSigned, self).get_file_data_async(filename, user_id)
+        pass
 
-    #async def create_file(self, content: str = None,
+    # async def create_file(self, content: str = None,
     def create_file(self, content: str = None,
                     security_level: str = None,
                     user_id: int = None) -> typing.Dict:
@@ -324,12 +337,45 @@ class FileServiceSigned(FileService):
             AssertionError: if user_id is not set.
             ValueError: if security level is invalid.
         """
-        return super(FileServiceSigned, self).create_file(content, security_level, user_id)
+        log.debug('..hashed create_file')
+        created_dict = super(FileServiceSigned, self).create_file(content, security_level, user_id)
+        log.debug(f'created_dict: {created_dict}')
+        hashed_data = HashAPI.hash_md5('__'.join(map(str, created_dict.values())))
+
+        md5_file_name = f"{created_dict['name']}.md5"
+
+        with open(md5_file_name, 'w') as md5_file:
+            md5_file.write(hashed_data)
+        return created_dict
+
+    def delete_file(self, filename: str):
+        """Delete file.
+
+        Args:
+            filename (str): Filename without .txt file extension.
+        Returns:
+            Str with filename with .txt file extension.
+        Raises:
+            AssertionError: if file does not exist.
+        """
+        returned_string = super(FileServiceSigned, self).delete_file(filename)
+
+        if returned_string:
+            md5_file_name = f"{returned_string}.md5"
+            try:
+                os.remove(md5_file_name)
+            except FileNotFoundError as _e:
+                log.error(f'File {md5_file_name} does not exist.')
+                return None
+            else:
+                log.info(f'File {md5_file_name} removed successfully.')
+        return returned_string
 
 
 if __name__ == '__main__':
     #fs = FileService()
     fs = FileServiceSigned()
+    fs.set_logging('DEBUG')
     fs.path = '.'
     original_path = fs.path
     print(original_path)
@@ -344,7 +390,7 @@ if __name__ == '__main__':
     print(fs.get_files())
 
     # test get_file_data
-    print(fs.get_file_data(created_file))
+    print(fs.get_file_data_hashed(created_file))
 
     # test file deletion
     print(fs.delete_file(created_file))
