@@ -16,14 +16,13 @@ from server.role_model_sql import RoleModelSQL
 
 
 class Handler:
-    """Aiohttp handler with coroutines.
-
-    """
+    """Aiohttp handler with coroutines."""
 
     def __init__(self, path: str):
         pass
 
-    async def handle(self, request: web.Request, *args, **kwargs) -> web.Response:
+    @staticmethod
+    async def handle(request: web.Request) -> web.Response:
         """Basic coroutine for connection testing.
 
         Args:
@@ -31,7 +30,7 @@ class Handler:
         Returns:
             Response: JSON response with status.
         """
-        pass
+        return web.json_response(data={'status': 'success'})
 
     # @UsersAPI.authorized
     # @RoleModel.role_model
@@ -47,7 +46,12 @@ class Handler:
             Response: JSON response with success status and data or error
             status and error message.
         """
-        pass
+        _json = '{}'
+        fs = FileService()
+        _file_list = fs.get_files()
+        _json = json.dumps(_file_list)
+
+        return web.json_response(data=_json)
 
     # @UsersAPI.authorized
     # @RoleModel.role_model
@@ -409,3 +413,14 @@ class Handler:
             HTTPBadRequest: 400 HTTP error, if error.
         """
         pass
+
+
+if __name__ == '__main__':
+    app = web.Application()
+    handler = Handler('.')
+
+    app.add_routes([
+        web.get('/', handler.handle),
+        web.get('/files/list', handler.get_files),
+    ])
+    web.run_app(app)
