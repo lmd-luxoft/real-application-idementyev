@@ -53,7 +53,7 @@ class FileService(metaclass=SingletonType):
 
         if not os.path.exists(_path):
             log.error(f'Directory {_path} does not exist')
-            raise FileNotFoundError
+            raise FileNotFoundError(f'Directory {_path} does not exist')
         else:
             self.__directory = _path
 
@@ -84,6 +84,7 @@ class FileService(metaclass=SingletonType):
             _file_data['edit_date'] = utils.convert_date(_file_stat.st_mtime)
         except FileNotFoundError as _e:
             log.error(f'File {_file} does not exist')
+            raise FileNotFoundError(f'File {_file} does not exist')
 
         return _file_data
 
@@ -225,7 +226,7 @@ class FileService(metaclass=SingletonType):
             os.remove(_file_full_path)
         except FileNotFoundError as _e:
             log.error(f'File {_file} does not exist.')
-            return None
+            raise FileNotFoundError(f'File {_file} does not exist.')
         else:
             log.info(f'File {_file} removed successfully.')
         return _file_full_path
@@ -289,7 +290,7 @@ class FileServiceSigned(FileService):
                     return {}
         else:
             log.error(f"File {_file_data['name']} was not hashed on creation.")
-            return {}
+            raise PermissionError(f"File {_file_data['name']} was not hashed on creation.")
 
     async def get_file_data_async(self, filename: str,
                                   user_id: int = None) -> typing.Dict:
@@ -366,7 +367,7 @@ class FileServiceSigned(FileService):
                 os.remove(md5_file_name)
             except FileNotFoundError as _e:
                 log.error(f'File {md5_file_name} does not exist.')
-                return None
+                return returned_string
             else:
                 log.info(f'File {md5_file_name} removed successfully.')
         return returned_string

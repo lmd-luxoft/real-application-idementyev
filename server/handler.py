@@ -19,10 +19,25 @@ class Handler:
     """Aiohttp handler with coroutines."""
 
     def __init__(self, path: str):
-        self.__fss = FileServiceSigned()
+        self.__file_service = FileServiceSigned()
+        self.__file_service.set_logging('DEBUG')
 
     @staticmethod
-    async def handle(request: web.Request) -> web.Response:
+    def make_status(code, data=None, message=None):
+        _dict = {}
+        if code == 200:
+            _dict['status'] = 'success'
+            _dict['code'] = code
+            _dict['data'] = data
+            _dict['message'] = None
+        else:
+            _dict['status'] = 'error'
+            _dict['code'] = 400  # by requirements
+            _dict['data'] = None
+            _dict['message'] = message
+        return _dict
+
+    async def handle(self, request: web.Request) -> web.Response:
         """Basic coroutine for connection testing.
 
         Args:
@@ -30,7 +45,7 @@ class Handler:
         Returns:
             Response: JSON response with status.
         """
-        return web.json_response(data={'status': 'success'})
+        return web.json_response(self.make_status(200))
 
     # @UsersAPI.authorized
     # @RoleModel.role_model
@@ -46,10 +61,8 @@ class Handler:
             Response: JSON response with success status and data or error
             status and error message.
         """
-        _file_list = self.__fss.get_files()
-        _json = json.dumps(_file_list)
-
-        return web.json_response(data=_json)
+        _file_list = self.__file_service.get_files()
+        return web.json_response(self.make_status(200, _file_list))
 
     # @UsersAPI.authorized
     # @RoleModel.role_model
@@ -68,7 +81,13 @@ class Handler:
         Raises:
             HTTPBadRequest: 400 HTTP error, if error.
         """
-        pass
+        _filename = request.rel_url.query['filename']
+        try:
+            _file_info = self.__file_service.get_file_data(_filename)
+        except (FileNotFoundError, PermissionError) as _e:
+            return web.json_response(self.make_status(400, message=str(_e)), status=400)
+        else:
+            return web.json_response(self.make_status(200, _file_info))
 
     # @UsersAPI.authorized
     # @RoleModel.role_model
@@ -93,7 +112,16 @@ class Handler:
         Raises:
             HTTPBadRequest: 400 HTTP error, if error.
         """
-        pass
+        _json_payload = await request.json()
+        _content = _json_payload.get('content')
+        _security_level = _json_payload.get('security_level')
+        _is_signed = _json_payload.get('is_signed')
+        try:
+            _file_data = self.__file_service.create_file(_content)
+        except Exception as _e:
+            return web.json_response(self.make_status(400, message=str(_e)), status=400)
+        else:
+            return web.json_response(self.make_status(200, data=_file_data))
 
     # @UsersAPI.authorized
     # @RoleModel.role_model
@@ -112,7 +140,13 @@ class Handler:
             HTTPBadRequest: 400 HTTP error, if error.
 
         """
-        pass
+        _filename = request.match_info['filename']
+        try:
+            _deleted = self.__file_service.delete_file(_filename)
+        except FileNotFoundError as _e:
+            return web.json_response(self.make_status(400, message=str(_e)), status=400)
+        else:
+            return web.json_response(self.make_status(200, _deleted))
 
     @UsersAPI.authorized
     @RoleModel.role_model
@@ -410,7 +444,15 @@ class Handler:
         Raises:
             HTTPBadRequest: 400 HTTP error, if error.
         """
-        pass
+        _json_payload = await request.json()
+        _path = _json_payload.get('directory')
+        if _path:
+            try:
+                self.__file_service.path = _path
+            except FileNotFoundError as _e:
+                return web.json_response(self.make_status(400, message=str(_e)), status=400)
+            else:
+                return web.json_response(self.make_status(200, self.__file_service.path))
 
 
 if __name__ == '__main__':
@@ -420,5 +462,9 @@ if __name__ == '__main__':
     app.add_routes([
         web.get('/', handler.handle),
         web.get('/files/list', handler.get_files),
+        web.get('/files', handler.get_file_info),
+        web.post('/change_file_dir', handler.change_file_dir),
+        web.post('/files', handler.create_file),
+        web.delete('/files/{filename}', handler.delete_file)
     ])
     web.run_app(app)
