@@ -19,7 +19,7 @@ class Handler:
     """Aiohttp handler with coroutines."""
 
     def __init__(self, path: str):
-        pass
+        self.__fss = FileServiceSigned()
 
     @staticmethod
     async def handle(request: web.Request) -> web.Response:
@@ -46,9 +46,7 @@ class Handler:
             Response: JSON response with success status and data or error
             status and error message.
         """
-        _json = '{}'
-        fs = FileService()
-        _file_list = fs.get_files()
+        _file_list = self.__fss.get_files()
         _json = json.dumps(_file_list)
 
         return web.json_response(data=_json)
