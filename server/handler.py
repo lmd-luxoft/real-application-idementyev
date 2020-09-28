@@ -21,6 +21,7 @@ class Handler:
     def __init__(self, path: str):
         self.__file_service = FileServiceSigned()
         self.__file_service.set_logging('DEBUG')
+        self.__file_service.path = path
 
     @staticmethod
     def make_status(code, data=None, message=None):
@@ -457,7 +458,7 @@ class Handler:
 
 if __name__ == '__main__':
     app = web.Application()
-    handler = Handler('.')
+    handler = Handler('..')
 
     app.add_routes([
         web.get('/', handler.handle),
