@@ -70,7 +70,7 @@ def get_file_data(_file=None):
     if not _file:
         print("Enter file name:")
         _file = input(f'file:{cli_prompt}')
-    _file_obj = file_service.get_file_data_hashed(_file)
+    _file_obj = file_service.get_file_data(_file)
 
     return _file_obj
 

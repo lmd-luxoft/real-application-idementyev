@@ -203,7 +203,7 @@ class FileService(metaclass=SingletonType):
             with open(_file_full_path, 'w') as _of:
                 _of.write(content if content else '')
                 log.info(f'Data written to file {_file}')
-            _file_data = self.get_file_data(_file_name)
+            _file_data = FileService.get_file_data(self, _file_name)
             log.debug(f'unhashed _file_data: {_file_data}')
             log.debug('unhashed create_file leave')
             return _file_data
@@ -254,7 +254,7 @@ class FileServiceSigned(FileService):
     def __init__(self):
         super(FileServiceSigned, self).__init__()
 
-    def get_file_data_hashed(
+    def get_file_data(
             self, filename: str, user_id: int = None) -> typing.Dict:
         """Get full info about file.
 
@@ -390,7 +390,7 @@ if __name__ == '__main__':
     print(fs.get_files())
 
     # test get_file_data
-    print(fs.get_file_data_hashed(created_file))
+    print(fs.get_file_data(created_file))
 
     # test file deletion
     print(fs.delete_file(created_file))
