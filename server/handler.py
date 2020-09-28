@@ -3,7 +3,7 @@ __author__ = 'idementyev@luxoft.com'
 __date__ = '2020-09-28'
 
 
-# import json
+import json
 from aiohttp import web
 # from queue import Queue
 # from distutils.util import strtobool
@@ -113,18 +113,23 @@ class Handler:
         Raises:
             HTTPBadRequest: 400 HTTP error, if error.
         """
-        _json_payload = await request.json()
-        _content = _json_payload.get('content')
-        _security_level = _json_payload.get('security_level')
-        _is_signed = _json_payload.get('is_signed')
+        _json_payload = {}
         try:
-            _file_data = self.__file_service.create_file(_content)
-        except Exception as _e:
-            return web.json_response(
-                self.make_status(400, message=str(_e)), status=400)
-        else:
-            return web.json_response(
-                self.make_status(200, data=_file_data))
+            _json_payload = await request.json()
+        except json.decoder.JSONDecodeError:
+            web.access_logger.info('Got empty JSON body.')
+        finally:
+            _content = _json_payload.get('content')
+            _security_level = _json_payload.get('security_level')
+            _is_signed = _json_payload.get('is_signed')
+            try:
+                _file_data = self.__file_service.create_file(_content)
+            except Exception as _e:
+                return web.json_response(
+                    self.make_status(400, message=str(_e)), status=400)
+            else:
+                return web.json_response(
+                    self.make_status(200, data=_file_data))
 
     # @UsersAPI.authorized
     # @RoleModel.role_model
