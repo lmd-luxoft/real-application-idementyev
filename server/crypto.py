@@ -1,5 +1,6 @@
-# Copyright 2019 by Kirill Kanin.
-# All rights reserved.
+__version__ = '0.4.0'
+__author__ = 'idementyev@luxoft.com'
+__date__ = '2020-09-28'
 
 import os
 import hashlib
@@ -8,13 +9,11 @@ from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.Random import get_random_bytes
 from typing import Tuple, BinaryIO
 
-key_folder = os.environ['KEY_DIR']
+# key_folder = os.environ['KEY_DIR']
 
 
 class HashAPI:
-    """Class with static methods for generating hashes.
-
-    """
+    """Class with static methods for generating hashes."""
 
     @staticmethod
     def hash_sha512(input_str: str) -> str:
@@ -22,16 +21,13 @@ class HashAPI:
 
         Args:
             input_str (str): Input string.
-
         Returns:
             Str with hash in hex format.
-
         Raises:
             AssertionError: if input string is not set.
-
         """
-
-        pass
+        output_str = hashlib.sha512(input_str.encode())
+        return output_str.hexdigest()
 
     @staticmethod
     def hash_md5(input_str: str) -> str:
@@ -39,16 +35,13 @@ class HashAPI:
 
         Args:
             input_str (str): Input string.
-
         Returns:
             Str with hash in hex format.
-
         Raises:
             AssertionError: if input string is not set.
-
         """
-
-        pass
+        output_str = hashlib.md5(input_str.encode())
+        return output_str.hexdigest()
 
 
 class BaseCipher:
@@ -201,3 +194,8 @@ class RSACipher(AESCipher):
         """
 
         pass
+
+if __name__ == '__main__':
+    ha = HashAPI()
+    in_str = 'This is a test'
+    print(ha.hash_md5(in_str))

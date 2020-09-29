@@ -1,6 +1,6 @@
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 __author__ = 'idementyev@luxoft.com'
-__date__ = '2020-09-24'
+__date__ = '2020-09-28'
 
 
 import argparse
@@ -202,7 +202,7 @@ def cli():
             for f in files:
                 print(f['name'])
         elif command == 'get':
-            print(f"{get_file_data()['content']}")
+            print(f"{get_file_data().get('content', '')}")
             continue
         elif command == 'create':
             print(f"Created file: {create_file()['name']}")
@@ -222,5 +222,6 @@ def cli():
 
 if __name__ == '__main__':
     cli_prompt = '> '
-    file_service = server.file_service.FileService()
+    #file_service = server.file_service.FileService()
+    file_service = server.file_service.FileServiceSigned()
     main()
