@@ -1,5 +1,6 @@
-# Copyright 2019 by Kirill Kanin.
-# All rights reserved.
+__version__ = '0.4.0'
+__author__ = 'idementyev@luxoft.com'
+__date__ = '2020-09-28'
 
 import os
 import hashlib
