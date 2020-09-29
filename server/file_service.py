@@ -340,8 +340,9 @@ class FileServiceSigned(FileService):
             '__'.join(map(str, created_dict.values())))
 
         md5_file_name = f"{created_dict['name']}.md5"
+        md5_full_path = os.path.join(self.path, md5_file_name)
 
-        with open(md5_file_name, 'w') as md5_file:
+        with open(md5_full_path, 'w') as md5_file:
             md5_file.write(hashed_data)
         return created_dict
 

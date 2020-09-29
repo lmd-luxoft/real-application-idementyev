@@ -20,7 +20,7 @@ class Handler:
 
     def __init__(self, path: str):
         self.__file_service = FileServiceSigned()
-        self.__file_service.set_logging('DEBUG')
+        # self.__file_service.set_logging('DEBUG')
         self.__file_service.path = path
 
     @staticmethod
