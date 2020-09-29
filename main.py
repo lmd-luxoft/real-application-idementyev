@@ -1,4 +1,4 @@
-__version__ = '0.4.0'
+__version__ = '0.5.0'
 __author__ = 'idementyev@luxoft.com'
 __date__ = '2020-09-28'
 
@@ -8,12 +8,10 @@ import os
 # import sys
 # import logging
 # import json
-# from aiohttp import web
-# from server.handler import Handler
+from aiohttp import web
+import server.handler
 # from server.database import DataBase
-# from server.file_service import FileService, FileServiceSigned
 import server.file_service
-# import server.file_service_no_class as file_service
 
 
 def commandline_parser() -> argparse.ArgumentParser:
@@ -154,12 +152,26 @@ def main():
     # initialize logging in the 'file_service' module
     file_service.set_logging(log_level)
 
-    if args.directory:
-        _pwd = change_dir(args.directory)
-        server.file_service.log.info(f"Directory set to {_pwd}.")
+    # if args.directory:
+    #     _pwd = change_dir(args.directory)
+    #     server.file_service.log.info(f"Directory set to {_pwd}.")
+
+    app = web.Application()
+    _pwd = args.directory if args.directory else '.'
+    handler = server.handler.Handler(_pwd)
+
+    app.add_routes([
+        web.get('/', handler.handle),
+        web.get('/files/list', handler.get_files),
+        web.get('/files', handler.get_file_info),
+        web.post('/change_file_dir', handler.change_file_dir),
+        web.post('/files', handler.create_file),
+        web.delete('/files/{filename}', handler.delete_file)
+    ])
+    web.run_app(app, port=args.port)
 
     # run CLI
-    cli()
+    # cli()
 
 
 def cli_help():
@@ -222,6 +234,5 @@ def cli():
 
 if __name__ == '__main__':
     cli_prompt = '> '
-    #file_service = server.file_service.FileService()
     file_service = server.file_service.FileServiceSigned()
     main()

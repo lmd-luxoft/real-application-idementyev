@@ -192,7 +192,7 @@ def set_logging(log_level='INFO'):
 
 
 if __name__ == '__main__':
-    # test chdir
+    # test change_dir
     print(f"new directory: {change_dir('..')}")
 
     # test file creation
