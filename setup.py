@@ -16,7 +16,7 @@ setup(
         'console_scripts': ['fileserver = server.main:main'],
     },
     install_requires=[
-        'aiohttp==3.6.0',
+        'aiohttp==3.7.4',
         'cchardet==2.1.4',
         'aiodns==2.0.0',
         'pycryptodome==3.9.4',
